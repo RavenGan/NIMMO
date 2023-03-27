@@ -1,5 +1,9 @@
-
-
+#' The function to obtain the scaling factor and dimension of a data matrix
+#'
+#' @param dat a data matrix whose rows stand for samples and columns stand for PCs.
+#' @param sample.idx the chosen sample indices which are used for the calculation of scaling factors
+#' @return a vector of length 2. The first number is the scaling factor and the second one is the number of PCs.
+#' @importFrom dplyr %>%
 
 dist.fcn <- function(dat, sample.idx){
   dat.norm <- dat / sqrt(rowSums(dat * dat))
@@ -14,9 +18,23 @@ dist.fcn <- function(dat, sample.idx){
   return(res)
 }
 
+#' Perform batch integration of multimodal single-cell data using NIMMO.
+#'
+#' @param dat.seu a seurat object with multiple assays. Data preprocessing steps like normalization, high-variable feature selection and
+#' dimension reduction are assumed to be performed.
+#' @param assay.ls the names of assays used for integration. This information can be found using \code{Assays(dat.seu)}.
+#' @param red.name.ls the names of dimension reductions. This information can be found using \code{names(dat.seu@reductions)}. Note that \code{assay.ls}
+#' and \code{red.name.ls} should match.
+#' @param q the parameter which decides the Lq norm. The default is \code{q = 2} which means using L2 norm to integrate data.
+#' @param sampling.rate the proportion of cells that are used to calculate scaling factors. The default is \code{sampling.rate = 0.1}.
+#' @param n.core the number of cores used for the calculation. The default is \code{n.core = 4}
+#' @return a seurat object \code{dat} with one new object called \code{nimmo} under \code{dat@reductions}. The new object is a two-dimensional data matrix
+#' obtained by UMAP dimension reduction.
+#' @importFrom dplyr %>%
+#' @export
 
 NIMMO <- function(dat.seu, assay.ls, red.name.ls,
-                  q = 2, sampling.rate = 0.1, n.core) {
+                  q = 2, sampling.rate = 0.1, n.core = 4) {
   if (!length(assay.ls) == length(red.name.ls)) {
     stop("Error: the length of assays is not equal to the length of the reduction names")
   }
@@ -62,7 +80,7 @@ NIMMO <- function(dat.seu, assay.ls, red.name.ls,
   set.ev <- paste0("os.environ['NIMMO_EV'] = ", "'", q, "'")
   reticulate::py_run_string("import os")
   reticulate::py_run_string(set.ev)
-  reticulate::source_python("./R.fcn.0327.2023/nimmo_dist.py")
+  reticulate::source_python("./inst/python/nimmo_dist.py")
 
   config = umap.defaults
   config$n_neighbors = 30
