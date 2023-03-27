@@ -1,3 +1,5 @@
+utils::globalVariables(c("nimmo", "umap.defaults"))
+
 #' The function to obtain the scaling factor and dimension of a data matrix
 #'
 #' @param dat a data matrix whose rows stand for samples and columns stand for PCs.
