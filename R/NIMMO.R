@@ -82,7 +82,8 @@ NIMMO <- function(dat.seu, assay.ls, red.name.ls,
   set.ev <- paste0("os.environ['NIMMO_EV'] = ", "'", q, "'")
   reticulate::py_run_string("import os")
   reticulate::py_run_string(set.ev)
-  reticulate::source_python("./inst/python/nimmo_dist.py")
+  reticulate::source_python(system.file("python", "nimmo_dist.py", package = "NIMMO"))
+  # reticulate::source_python("./inst/python/nimmo_dist.py")
 
   config = umap.defaults
   config$n_neighbors = 30
@@ -93,7 +94,7 @@ NIMMO <- function(dat.seu, assay.ls, red.name.ls,
     config[[x]] = as.integer(config[[x]])
   }
 
-  res <- umap::umap.learn(dat.all, config = config)
+  res <- umap:::umap.learn(dat.all, config = config)
   res.umap <- res$layout
   colnames(res.umap) <- c("UMAP.1", "UMAP.2")
   res.umap <- Seurat::CreateDimReducObject(res.umap, key = "nimmo_", assay = "RNA")

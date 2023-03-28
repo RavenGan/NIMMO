@@ -1,0 +1,89 @@
+---
+title: "VIMMO Tutorial"
+data: '`r Sys.Date()`'
+output: 
+  rmarkdown::html_document:
+    df_print: paged
+    toc: yes
+vignette: |
+  %\VignetteIndexEntry{introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+# Introduction
+
+This VIMMO R package contains the proposed NIMMO algorithm (function `NIMMO`), which is a computational method that can integrate multimodal single-cell data
+
+In this tutorial (R version: 4.1.2), we use one example to explain the functions in VIMMO package. We first load the required package:
+
+```{r setup}
+library(NIMMO)
+```
+and other necessary packages
+```{r}
+library(Seurat)
+library(dplyr)
+library(umap)
+library(reticulate)
+```
+
+# NIMMO examples
+
+VIMMO takes a seurat object with multimodal batches. Each batch has gone thourgh pre-processing steps, like normlization, highly variable gene selection, dimension reduction, etc.
+
+### Preparing scRNA-seq and bulk RNA-seq data
+
+We first load the scRNA-seq count data
+
+```{r}
+dat.seu <- readRDS(system.file("extdata", "cbmc.seu.2mod.rds", package = "NIMMO"))
+# Check the contents of this seurat object
+dat.seu
+```
+It can be noted that there are two assays, which are `RNA` and `ADT`. The corresponding dimension-reduced data are `pca` and `apca`. 
+
+In this example, we use both assays and the dimension-reduced data
+
+```{r}
+assay.ls <- c("RNA", "ADT")
+red.name.ls <- c("pca", "apca")
+```
+
+We next check whether python can be used since the NIMMO package needs to run code in python scripts.
+```{r}
+Sys.which("python")
+```
+Note that there is nothing here and hence we need to set up the path to python using
+
+```{r}
+use_python("/Users/david/opt/anaconda3/bin/python")
+```
+
+```{r}
+nimmo.res <- NIMMO(dat.seu, assay.ls, red.name.ls,
+                   q = 2, sampling.rate = 0.1, n.core = 4)
+```
+
+```{r}
+nimmo.res <- RunUMAP(nimmo.res, reduction = 'pca', dims = 1:30, assay = 'RNA', 
+               reduction.name = 'rna.umap', reduction.key = 'rnaUMAP_')
+nimmo.res <- RunUMAP(nimmo.res, reduction = 'apca', dims = 1:7, assay = 'ADT', 
+                   reduction.name = 'adt.umap', reduction.key = 'adtUMAP_')
+```
+
+```{r}
+library(ggplot2)
+p1 <- DimPlot(nimmo.res, reduction='rna.umap', group.by='rna_annotations', label=T, repel=T, label.size=5.5) + 
+  NoLegend() + ggtitle('RNA') + theme(plot.title = element_text(size=32), axis.title.x = element_blank(),
+                                  axis.title.y = element_blank())
+p2 <- DimPlot(nimmo.res, reduction='adt.umap', group.by ='rna_annotations', label=T, repel=T, label.size=5.5) + 
+  NoLegend() + ggtitle('Protein') + theme(plot.title = element_text(size=32), axis.title.x = element_blank(),
+                                      axis.title.y = element_blank())
+p3 <- DimPlot(nimmo.res, reduction='nimmo', group.by = 'rna_annotations', label=T, repel=T, label.size = 5.5) +
+  NoLegend() + ggtitle('VIMMO') + theme(plot.title = element_text(size=32), axis.title.x = element_blank(),
+                                        axis.title.y = element_blank())
+```
+
+```{r, fig.height=4, fig.width=14}
+cowplot::plot_grid(p1, p2, p3, nrow = 1)
+```
