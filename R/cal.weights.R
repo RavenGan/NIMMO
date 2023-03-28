@@ -60,9 +60,9 @@ cal.modality.weights <- function(dat.list, cell.type, q = 2, dnorm, subsample.wt
   names(mw) <- names(dat.list)
 
   for (i in 1 : (n.ct - 1)) {
-    di <- pick.with.subsample(dat.list, cell.type, ct[i], subsample, n.subsample)
+    di <- pick.with.subsample(dat.list, cell.type, ct[i], subsample.wt, n.subsample.wt)
     for (j in (i + 1) : n.ct) {
-      dj <- pick.with.subsample(dat.list, cell.type, ct[j], subsample, n.subsample)
+      dj <- pick.with.subsample(dat.list, cell.type, ct[j], subsample.wt, n.subsample.wt)
 
       # distance matrix for individual modalities
       dmat <- list()
@@ -141,8 +141,8 @@ cal.dnorm <- function(dat.list, subsample.norm=TRUE, n.subsample.norm=1000, seed
 
   # subsample if needed
   ind <- 1 : ncol(dat.list[[1]])
-  if (subsample & length(ind) > n.subsample) {
-    ind <- sample(ind, n.subsample)
+  if (subsample.norm & length(ind) > n.subsample.norm) {
+    ind <- sample(ind, n.subsample.norm)
   }
 
   for (m in 1 : M) {
