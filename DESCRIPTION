@@ -1,11 +1,21 @@
 Package: NIMMO
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Norm-based integration of multimodal single-cell data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author:
+    c(person(given = "Zixuan",
+             family = "Song",
+             role = "aut"),
+      person(given = "Dailin",
+             family = "Gan",
+             role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0003-0535-1259")),
+      person(given = "Jun",
+             family = "Li",
+             role = "aut")
+			 )
+Maintainer: Dailin Gan <dgan@nd.edu>
+Description: Integrate multimodal single-cell data using a norm-based approach.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
