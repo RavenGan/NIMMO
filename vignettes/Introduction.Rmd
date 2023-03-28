@@ -60,8 +60,9 @@ use_python("/Users/david/opt/anaconda3/bin/python")
 ```
 
 ```{r}
+options(mc.cores = 2)
 nimmo.res <- NIMMO(dat.seu, assay.ls, red.name.ls,
-                   q = 2, sampling.rate = 0.1, n.core = 4)
+                   q = 2, sampling.rate = 0.1, n.core = 2)
 ```
 
 ```{r}
