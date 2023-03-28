@@ -4,14 +4,19 @@
 \alias{cal.dnorm}
 \title{This function calculates the normalization factor using subsampling if necessary}
 \usage{
-cal.dnorm(dat.list, subsample = TRUE, n.subsample = 1000, seed = NULL)
+cal.dnorm(
+  dat.list,
+  subsample.norm = TRUE,
+  n.subsample.norm = 1000,
+  seed = NULL
+)
 }
 \arguments{
 \item{dat.list}{a list of data matrices with dimensions reduced.}
 
-\item{subsample}{if TRUE, perform subsampling for each data matrix. The default is \code{subsample = TRUE}.}
+\item{subsample.norm}{if TRUE, perform subsampling for each data matrix. The default is \code{subsample = TRUE}.}
 
-\item{n.subsample}{the number of subsamples. The default is \code{n.subsample = 1000}. This means each modality will be down-sampled to the
+\item{n.subsample.norm}{the number of subsamples. The default is \code{n.subsample = 1000}. This means each modality will be down-sampled to the
 1000 cells if ths sample size is larger than 1000 cells.}
 
 \item{seed}{the random seed used for subsampling. The default is \code{seed = NULL}.}

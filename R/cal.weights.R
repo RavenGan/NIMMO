@@ -30,15 +30,15 @@ get.dat.list <- function(dat.seu, assay.ls, red.name.ls) {
 #' @param cell.type a vector of true cell labels.
 #' @param q the parameter which decides the Lq norm. The default is \code{q = 2} which means using L2 norm.
 #' @param dnorm a vector that stores the normalization factors, which can be calculated using the \code{cal.dnorm} function
-#' @param subsample if TRUE, perform subsampling for each cell type. The default is \code{subsample = TRUE}.
-#' @param n.subsample the number of subsamples for each cell type. The default is \code{n.subsample = 200}. This means cell types with larger than 200
+#' @param subsample.wt if TRUE, perform subsampling for each cell type. The default is \code{subsample = TRUE}.
+#' @param n.subsample.wt the number of subsamples for each cell type. The default is \code{n.subsample = 200}. This means cell types with larger than 200
 #' cells will at most use 200 cells to calculate the weights of modalities.
 #' @param seed the random seed used for subsampling. The default is \code{seed = NULL}.
 #' @return a list of weight matrices for each modality.
 #' @importFrom dplyr %>%
 #' @export
 
-cal.modality.weights <- function(dat.list, cell.type, q = 2, dnorm, subsample=TRUE, n.subsample=200, seed=NULL) {
+cal.modality.weights <- function(dat.list, cell.type, q = 2, dnorm, subsample.wt=TRUE, n.subsample.wt=200, seed=NULL) {
   # set seed if needed
   if (!is.null(seed)) {
     set.seed(seed)
@@ -123,15 +123,15 @@ pick.with.subsample <- function(dat.list, cell.type, cti, subsample, n.subsample
 #' This function calculates the normalization factor using subsampling if necessary
 #'
 #' @param dat.list a list of data matrices with dimensions reduced.
-#' @param subsample if TRUE, perform subsampling for each data matrix. The default is \code{subsample = TRUE}.
-#' @param n.subsample the number of subsamples. The default is \code{n.subsample = 1000}. This means each modality will be down-sampled to the
+#' @param subsample.norm if TRUE, perform subsampling for each data matrix. The default is \code{subsample = TRUE}.
+#' @param n.subsample.norm the number of subsamples. The default is \code{n.subsample = 1000}. This means each modality will be down-sampled to the
 #' 1000 cells if ths sample size is larger than 1000 cells.
 #' @param seed the random seed used for subsampling. The default is \code{seed = NULL}.
 #' @return a vector of normalization factor.
 #' @importFrom dplyr %>%
 #' @export
 
-cal.dnorm <- function(dat.list, subsample=TRUE, n.subsample=1000, seed=NULL) {
+cal.dnorm <- function(dat.list, subsample.norm=TRUE, n.subsample.norm=1000, seed=NULL) {
   if (!is.null(seed)) {
     set.seed(seed)
   }

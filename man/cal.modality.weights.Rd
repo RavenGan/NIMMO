@@ -9,8 +9,8 @@ cal.modality.weights(
   cell.type,
   q = 2,
   dnorm,
-  subsample = TRUE,
-  n.subsample = 200,
+  subsample.wt = TRUE,
+  n.subsample.wt = 200,
   seed = NULL
 )
 }
@@ -23,9 +23,9 @@ cal.modality.weights(
 
 \item{dnorm}{a vector that stores the normalization factors, which can be calculated using the \code{cal.dnorm} function}
 
-\item{subsample}{if TRUE, perform subsampling for each cell type. The default is \code{subsample = TRUE}.}
+\item{subsample.wt}{if TRUE, perform subsampling for each cell type. The default is \code{subsample = TRUE}.}
 
-\item{n.subsample}{the number of subsamples for each cell type. The default is \code{n.subsample = 200}. This means cell types with larger than 200
+\item{n.subsample.wt}{the number of subsamples for each cell type. The default is \code{n.subsample = 200}. This means cell types with larger than 200
 cells will at most use 200 cells to calculate the weights of modalities.}
 
 \item{seed}{the random seed used for subsampling. The default is \code{seed = NULL}.}

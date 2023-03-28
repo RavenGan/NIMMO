@@ -27,8 +27,10 @@ dist.fcn <- function(dat, sample.idx){
 #' @param assay.ls the names of assays used for integration. This information can be found using \code{Assays(dat.seu)}.
 #' @param red.name.ls the names of dimension reductions. This information can be found using \code{names(dat.seu@reductions)}. Note that \code{assay.ls}
 #' and \code{red.name.ls} should match.
+#' @param subsample if TRUE, perform subsampling for each data matrix. The default is \code{subsample = TRUE}.
+#' @param n.subsample the number of subsamples. The default is \code{n.subsample = 1000}. This means each modality will be down-sampled to the
+#' 1000 cells if ths sample size is larger than 1000 cells. This subsampling is only used for calculating the scaling factors for each modality.
 #' @param q the parameter which decides the Lq norm. The default is \code{q = 2} which means using L2 norm to integrate data.
-#' @param sampling.rate the proportion of cells that are used to calculate scaling factors. The default is \code{sampling.rate = 0.1}.
 #' @param n.core the number of cores used for the calculation. The default is \code{n.core = 4}
 #' @return a seurat object \code{dat} with one new object called \code{nimmo} under \code{dat@reductions}. The new object is a two-dimensional data matrix
 #' obtained by UMAP dimension reduction.
@@ -36,7 +38,7 @@ dist.fcn <- function(dat, sample.idx){
 #' @export
 
 NIMMO <- function(dat.seu, assay.ls, red.name.ls,
-                  q = 2, sampling.rate = 0.1, n.core = 4) {
+                  q = 2, subsample=TRUE, n.subsample=1000, n.core=4) {
   if (!length(assay.ls) == length(red.name.ls)) {
     stop("Error: the length of assays is not equal to the length of the reduction names")
   }
@@ -51,7 +53,11 @@ NIMMO <- function(dat.seu, assay.ls, red.name.ls,
   dat.ls.1 <- dat.ls[[1]]
   n <- nrow(dat.ls.1)
 
-  sample.idx <- sample(n, round(n * sampling.rate))
+  # subsample if needed
+  ind <- 1 : n
+  if (subsample & length(ind) > n.subsample) {
+    sample.idx <- sample(ind, n.subsample)
+  }
 
   fx <- function(dat.idx){
     dat <- dat.ls[[dat.idx]]

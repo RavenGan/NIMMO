@@ -4,7 +4,15 @@
 \alias{NIMMO}
 \title{Perform batch integration of multimodal single-cell data using NIMMO.}
 \usage{
-NIMMO(dat.seu, assay.ls, red.name.ls, q = 2, sampling.rate = 0.1, n.core = 4)
+NIMMO(
+  dat.seu,
+  assay.ls,
+  red.name.ls,
+  q = 2,
+  subsample = TRUE,
+  n.subsample = 1000,
+  n.core = 4
+)
 }
 \arguments{
 \item{dat.seu}{a seurat object with multiple assays. Data preprocessing steps like normalization, high-variable feature selection and
@@ -17,7 +25,10 @@ and \code{red.name.ls} should match.}
 
 \item{q}{the parameter which decides the Lq norm. The default is \code{q = 2} which means using L2 norm to integrate data.}
 
-\item{sampling.rate}{the proportion of cells that are used to calculate scaling factors. The default is \code{sampling.rate = 0.1}.}
+\item{subsample}{if TRUE, perform subsampling for each data matrix. The default is \code{subsample = TRUE}.}
+
+\item{n.subsample}{the number of subsamples. The default is \code{n.subsample = 1000}. This means each modality will be down-sampled to the
+1000 cells if ths sample size is larger than 1000 cells. This subsampling is only used for calculating the scaling factors for each modality.}
 
 \item{n.core}{the number of cores used for the calculation. The default is \code{n.core = 4}}
 }

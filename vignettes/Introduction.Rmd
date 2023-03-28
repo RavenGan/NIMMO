@@ -62,7 +62,7 @@ use_python("/Users/david/opt/anaconda3/bin/python")
 ```{r}
 options(mc.cores = 2)
 nimmo.res <- NIMMO(dat.seu, assay.ls, red.name.ls,
-                   q = 2, sampling.rate = 0.1, n.core = 2)
+                   q = 2, n.core = 2, n.subsample=1000, n.core=4)
 ```
 
 ```{r}
@@ -100,11 +100,11 @@ dat.list <- get.dat.list(dat.seu, assay.ls, red.name.ls)
 ```
 
 ```{r}
-dnorm <- cal.dnorm(dat.list, subsample = TRUE, n.subsample = 1000, seed = NULL)
+dnorm <- cal.dnorm(dat.list, subsample.norm= TRUE, n.subsample.norm=1000, seed = NULL)
 ```
 
 ```{r}
-res <- cal.modality.weights(dat.list, cell.type, q = 2, dnorm, subsample = TRUE, n.subsample = 200, seed = NULL)
+res <- cal.modality.weights(dat.list, cell.type, q=2, dnorm, subsample.wt=TRUE, n.subsample.wt=200, seed = NULL)
 ```
 
 ```{r}
