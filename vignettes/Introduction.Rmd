@@ -1,5 +1,5 @@
 ---
-title: "VIMMO Tutorial"
+title: "NIMMO Tutorial"
 data: '`r Sys.Date()`'
 output: 
   rmarkdown::html_document:
@@ -12,9 +12,9 @@ vignette: |
 ---
 # Introduction
 
-This VIMMO R package contains the proposed NIMMO algorithm (function `NIMMO`), which is a computational method that can integrate multimodal single-cell data
+This NIMMO R package contains the proposed NIMMO algorithm (function `NIMMO`), which is a computational method that can integrate multimodal single-cell data
 
-In this tutorial (R version: 4.1.2), we use one example to explain the functions in VIMMO package. We first load the required package:
+In this tutorial (R version: 4.1.2), we use one example to explain the functions in NIMMO package. We first load the required package:
 
 ```{r setup}
 library(NIMMO)
@@ -29,9 +29,9 @@ library(reticulate)
 
 # NIMMO examples
 
-VIMMO takes a seurat object with multimodal batches. Each batch has gone thourgh pre-processing steps, like normlization, highly variable gene selection, dimension reduction, etc.
+NIMMO takes a seurat object with multimodal batches. Each batch has gone thourgh pre-processing steps, like normlization, highly variable gene selection, dimension reduction, etc.
 
-### Preparing scRNA-seq and bulk RNA-seq data
+### Preparing single-cell data
 
 We first load the scRNA-seq count data
 
@@ -81,10 +81,36 @@ p2 <- DimPlot(nimmo.res, reduction='adt.umap', group.by ='rna_annotations', labe
   NoLegend() + ggtitle('Protein') + theme(plot.title = element_text(size=32), axis.title.x = element_blank(),
                                       axis.title.y = element_blank())
 p3 <- DimPlot(nimmo.res, reduction='nimmo', group.by = 'rna_annotations', label=T, repel=T, label.size = 5.5) +
-  NoLegend() + ggtitle('VIMMO') + theme(plot.title = element_text(size=32), axis.title.x = element_blank(),
+  NoLegend() + ggtitle('NIMMO') + theme(plot.title = element_text(size=32), axis.title.x = element_blank(),
                                         axis.title.y = element_blank())
 ```
 
 ```{r, fig.height=4, fig.width=14}
 cowplot::plot_grid(p1, p2, p3, nrow = 1)
+```
+
+# Calculate the weights for each modality
+
+```{r}
+cell.type <- dat.seu$rna_annotations
+```
+
+```{r}
+dat.list <- get.dat.list(dat.seu, assay.ls, red.name.ls)
+```
+
+```{r}
+dnorm <- cal.dnorm(dat.list, subsample = TRUE, n.subsample = 1000, seed = NULL)
+```
+
+```{r}
+res <- cal.modality.weights(dat.list, cell.type, q = 2, dnorm, subsample = TRUE, n.subsample = 200, seed = NULL)
+```
+
+```{r}
+print(res[["RNA"]])
+```
+
+```{r}
+print(res[["ADT"]])
 ```
