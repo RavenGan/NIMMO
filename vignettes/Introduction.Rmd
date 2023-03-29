@@ -49,6 +49,7 @@ assay.ls <- c("RNA", "ADT")
 red.name.ls <- c("pca", "apca")
 ```
 
+### Setups in python environment
 We next check whether python can be used since the NIMMO package needs to run code in python scripts.
 ```{r}
 Sys.which("python")
@@ -59,11 +60,26 @@ Note that there is nothing here and hence we need to set up the path to python u
 use_python("/Users/david/opt/anaconda3/bin/python")
 ```
 
+In order to use functions written in python, users also need to set up their python environment using the following code
+```{r}
+### In python environment, run the following code
+# conda install nomkl numpy scipy scikit-learn numexpr numba
+# conda remove mkl mkl-service
+```
+
+### Running NIMMO
+
+After these setups, let's run `NIMMO`!
 ```{r}
 options(mc.cores = 2)
 nimmo.res <- NIMMO(dat.seu, assay.ls, red.name.ls,
                    q = 2, subsample=TRUE, n.subsample=1000, n.core=2)
 ```
+The arguments `dat.seu`, `assay.ls`, and `red.name.ls` are obtained before. Setting `q = 2` means that we use the L2 norm to integrate multimodal single-cell data. Using `subsample=TRUE` and `n.subsample=1000` means that when we downsample the data to 1000 cells to calculate the scaling factors for each modality.
+
+The output of `NIMMO` is also a seurat object similar to the input `dat.seu`. The difference is that under `nimmo.res@reductions`, there is one more two-dimensional embedding called `nimmo`, which is the integrated results.
+
+We next perform dimension reduction on the RNA and ADT data separately and compare the low dimensional space among RNA, ADT and the integrated results by `NIMMO`. Since `nimmo.res` is also a seurat object, functions like `RunUMAP` and `DimPlot` created in the seurat package can be easily used.
 
 ```{r}
 nimmo.res <- RunUMAP(nimmo.res, reduction = 'pca', dims = 1:30, assay = 'RNA', 
@@ -85,32 +101,72 @@ p3 <- DimPlot(nimmo.res, reduction='nimmo', group.by = 'rna_annotations', label=
                                         axis.title.y = element_blank())
 ```
 
+The UMAP plots are shown below.
+
 ```{r, fig.height=4, fig.width=14}
 cowplot::plot_grid(p1, p2, p3, nrow = 1)
 ```
 
 # Calculate the weights for each modality
+Apart from obtaining the integrated results for multimodal data, we may be also interested in how each modality contributes to the integration of certain cell types. We also provide anxiliary functions to achieve this purpose.
+
+We first get the cell type information from the seurat object `dat.seu`.
 
 ```{r}
 cell.type <- dat.seu$rna_annotations
 ```
 
+We next specify the assays and their corresponding dimension-reduced data that we are interested in and extract the list of data matrices.
+
 ```{r}
 dat.list <- get.dat.list(dat.seu, assay.ls, red.name.ls)
 ```
+
+First calculate the scaling factor for each modality. By using `subsample.norm=TRUE` and `n.subsample.norm=1000`, we downsample the data to 1000 cells to calculate the scaling factors for each modality.
 
 ```{r}
 dnorm <- cal.dnorm(dat.list, subsample.norm= TRUE, n.subsample.norm=1000, seed = NULL)
 ```
 
+Next obtain the weights for each modality. Setting `q = 2` means we use the L2 norm, which is the same as that used in the function `NIMMO`. Using `subsample.wt=TRUE` and `n.subsample.wt=200` means that we downsample the number of cell in each cell type to 200 cells if they exceed this number. This is just for computational consideration.
+
 ```{r}
 res <- cal.modality.weights(dat.list, cell.type, q=2, dnorm, subsample.wt=TRUE, n.subsample.wt=200, seed = NULL)
 ```
 
+Let's have a look at the weights of each modality!
 ```{r}
-print(res[["RNA"]])
+RNA.wt <- res[["RNA"]]
+RNA.wt <- data.frame(rows = rownames(RNA.wt)[row(RNA.wt)], cols = colnames(RNA.wt)[col(RNA.wt)], wt = c(RNA.wt))
+
+ADT.wt <- res[["ADT"]]
+ADT.wt <- data.frame(rows = rownames(ADT.wt)[row(ADT.wt)], cols = colnames(ADT.wt)[col(ADT.wt)], wt = c(ADT.wt))
+
+# heatmap of NIMMO weights (2-dimensional)
+wt.p1 <- ggplot(RNA.wt, aes(rows, cols, fill = wt)) + geom_tile() + coord_fixed() + 
+  scale_fill_gradient2(low = "darkblue", mid = "white", high = "darkred", midpoint = 0.5, breaks = seq(0,1,0.25), limits=c(0,1), na.value = "lightgrey") +
+  guides(fill = guide_colourbar(title = "weight")) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  ggtitle("RNA")
+
+wt.p2 <- ggplot(ADT.wt, aes(rows, cols, fill = wt)) + geom_tile() + coord_fixed() + 
+  scale_fill_gradient2(low = "darkblue", mid = "white", high = "darkred", midpoint = 0.5, breaks = seq(0,1,0.25), limits=c(0,1), na.value = "lightgrey") +
+  guides(fill = guide_colourbar(title = "weight")) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  ggtitle("ADT")
 ```
 
+Here is the plot.
+```{r, fig.height=4, fig.width=9}
+cowplot::plot_grid(wt.p1, wt.p2, nrow = 1)
+```
+
+# Session Info
+
 ```{r}
-print(res[["ADT"]])
+sessionInfo()
 ```
