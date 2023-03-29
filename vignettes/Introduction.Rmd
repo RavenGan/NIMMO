@@ -12,7 +12,7 @@ vignette: |
 ---
 # Introduction
 
-This NIMMO R package contains the proposed NIMMO algorithm (function `NIMMO`), which is a computational method that can integrate multimodal single-cell data
+This NIMMO R package contains the proposed NIMMO algorithm (function `NIMMO`), which is a computational method that can integrate multimodal single-cell data.
 
 In this tutorial (R version: 4.1.2), we use one example to explain the functions in NIMMO package. We first load the required package:
 
