@@ -43,6 +43,10 @@ NIMMO <- function(dat.seu, assay.ls, red.name.ls,
     stop("Error: the length of assays is not equal to the length of the reduction names")
   }
 
+  if (q >= 100) { # Inf > 100 is TRUE
+    q <- 100
+  }
+
   dat.ls <- c()
   for (i in 1:length(red.name.ls)) {
     assay.i <- assay.ls[i]
