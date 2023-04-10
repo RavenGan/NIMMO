@@ -57,10 +57,17 @@ NIMMO <- function(dat.seu, assay.ls, red.name.ls,
   dat.ls.1 <- dat.ls[[1]]
   n <- nrow(dat.ls.1)
 
+  # Check subsample
+  if (n <= n.subsample) {
+    subsample = FALSE
+    print(paste0("The number of sample is smaller than ", n.subsample, ". Set subsample = FALSE."))
+  }
   # subsample if needed
   ind <- 1 : n
   if (subsample & length(ind) > n.subsample) {
     sample.idx <- sample(ind, n.subsample)
+  } else {
+    sample.idx <- ind
   }
 
   fx <- function(dat.idx){
