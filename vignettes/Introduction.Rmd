@@ -68,7 +68,6 @@ In order to use functions written in python, users also need to set up their pyt
 
 # If the umap-learn python package is not installed, users can try
 py_install("umap-learn")
-
 ```
 
 ### Running NIMMO
